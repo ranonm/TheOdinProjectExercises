@@ -3,22 +3,46 @@ require_relative "board"
 class Game
 
   def start
-    @board = Board.new
+    option = prompt_player "Do you want to start a new game? (y/n)"
 
-    until board.game_over?
-      display
-
-      letter = prompt_player_for_guess
-      make_guess(letter)
+    case option.downcase
+    when "y", "yes"
+      @board = Board.new
+    when "n", "no"
+      filename = prompt_player "Provide the file name for the saved game you want to play:"
+      @board = Board.open(filename)
+    else
+      put "Invalid choice."
+      exit
     end
 
-    display
+    play
   end
 
   private
-  def prompt_player_for_guess
-    print "Guess a letter: "
-    gets.chomp[0]
+
+  def prompt_player(question)
+    print "#{question} "
+    gets.chomp
+  end
+
+  def play
+    until board.game_over?
+      display
+
+      input = prompt_player "Guess a letter ('!'-save or '#'-exit)"
+
+      case input
+      when "!"
+        board.save
+      when "#"
+        exit
+      else
+        make_guess(input[0])
+      end
+    end
+
+    display
   end
 
   def display
@@ -28,7 +52,7 @@ class Game
     puts
     puts result unless result.nil?
   end
-  
+
   def result
     if board.win?
       "You won!"

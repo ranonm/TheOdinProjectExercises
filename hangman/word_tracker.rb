@@ -1,6 +1,6 @@
 class WordTracker
-  def initialize(length)
-    @tracker = Array.new(length)
+  def initialize(incomplete_word)
+    @tracker = incomplete_word
   end
 
   def include?(letter)
