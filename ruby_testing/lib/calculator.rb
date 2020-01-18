@@ -6,4 +6,12 @@ class Calculator
   def multiply(*numbers)
     numbers.reduce { |product, number| product * number }
   end
+
+  def subtract(one, two)
+    one - two
+  end
+  
+  def divide(one, two)
+    one/two
+  end
 end
