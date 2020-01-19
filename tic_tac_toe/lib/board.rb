@@ -5,8 +5,8 @@ class Board
     @cells = Array.new(9)
   end
 
-  def move(player, position)
-    @selection = Selection.new(position, player.marker)
+  def move(selection)
+    @selection = selection
 
     return false unless approved_move?
 

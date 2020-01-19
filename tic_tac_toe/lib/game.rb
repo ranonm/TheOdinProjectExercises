@@ -30,8 +30,8 @@ class Game
 
   def play
     loop do
-      position = current_player.ask("#{current_player}, enter your next #{current_player.marker} move (1-9): ")
-      moved = board.move(current_player, position)
+      selection = current_player.prompt_for_move
+      moved = board.move(selection)
 
       puts status_message unless status_message.empty?
 
