@@ -1,0 +1,2 @@
+class SelectionError < StandardError
+end

@@ -1,5 +1,6 @@
+require_relative 'selection_error'
+
 class Board
-  attr_reader :status
 
   def initialize
     @cells = Array.new(9)
@@ -7,25 +8,15 @@ class Board
 
   def move(selection)
     @selection = selection
-
-    return false unless approved_move?
+    
+    ensure_legit_move
 
     mark_cell
     redraw
-
-    true
   end
 
   def game_over?
-    if winner?
-      self.status = :win
-      true
-    elsif tie?
-      self.status = :tie
-      true
-    else
-      false
-    end
+    winner? or tie?
   end
 
   def display
@@ -41,12 +32,8 @@ class Board
     end
   end
 
-  private
-
   def winner?
-    if @selection.nil?
-      return false
-    end
+    return false if @selection.nil?
 
     possible_combinations = [
       [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -60,23 +47,16 @@ class Board
   end
 
   def tie?
-    not winner? and full?
+    full? and not winner?
   end
 
-  def full?
-    cells.all? { |cell| not cell.nil? }
-  end
+  private
 
-  def approved_move?
+  def ensure_legit_move
     if not valid_move?
-      self.status = :invalid
-      false
+      raise SelectionError.new "Your move should be 1-9"
     elsif not legal_move?
-      self.status = :illegal
-      false
-    else
-      self.status = nil
-      true
+      raise SelectionError.new "Your move should be an unmarked cell"
     end
   end
 
@@ -86,6 +66,10 @@ class Board
 
   def legal_move?
     cells[@selection.position].nil?
+  end
+
+  def full?
+    cells.all? { |cell| not cell.nil? }
   end
 
   def mark_cell
@@ -98,9 +82,5 @@ class Board
 
   def cells
     @cells
-  end
-
-  def status=(msg)
-    @status = msg
   end
 end

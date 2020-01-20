@@ -10,34 +10,33 @@ class Game
   def start(name)
     @starting_player = get_player(name)
 
-    if @starting_player.nil?
-      puts "I don't know that player. Please try again."
-    else
-      setup_players
+    puts "I don't know that player. Please try again." if @starting_player.nil?
+    
+    setup_players
 
-      @board = Board.new
+    @board = Board.new
 
-      until board.game_over?
-        choose_player
-        play
-      end
-      
-      puts status_message
+    until board.game_over?
+      choose_player
+      play
     end
+    
+    puts result
   end
 
   private
 
   def play
     loop do
-      selection = current_player.prompt_for_move
-      moved = board.move(selection)
-
-      puts status_message unless status_message.empty?
-
-      board.display
-
-      break if moved
+      begin
+        selection = current_player.prompt_for_move
+        board.move(selection)
+        break
+      rescue SelectionError => exception
+        puts "#{exception.message}, you go again."
+      ensure
+        board.display
+      end
     end
   end
 
@@ -49,29 +48,22 @@ class Game
   end
 
   def choose_player
-    if current_player.nil?
-      self.current_player = @starting_player
-    else
-      self.current_player = players.find { |player| player != current_player }
-    end
+    self.current_player = current_player.nil? ?
+      @starting_player : 
+      players.find { |player| player != current_player }
   end
 
   def get_player(name)
     players.find { |player| player.name.downcase == name.downcase }
   end
 
-  def status_message
-    case board.status
-    when :win
+  def result
+    if board.winner?
       "#{current_player}, you won!"
-    when :tie
-      "The game has been ended in a tie!"
-    when :illegal
-      "Bad move dude! you go again."
-    when :invalid
-      "Dude! your move should be 1-9, you go again."
+    elsif board.tie?
+      "Game ended in a tie!"
     else
-      ""
+      "No result yet."
     end
   end
 
